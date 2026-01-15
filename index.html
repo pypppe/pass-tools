@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Password Tools</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-main: #0b0b0b;
+      --bg-card: #151515;
+      --bg-input: #101010;
+      --border-soft: #2a2a2a;
+      --accent: #00aaff;
+      --accent-dim: #008ecc;
+      --text-main: #ffffff;
+      --text-muted: #a0a0a0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding-bottom: 60px;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Fira Code', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      margin-top: 50px;
+      font-size: 2.1rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 6px rgba(0,170,255,0.6);
+    }
+
+    .section {
+      margin-top: 56px;
+      width: 90%;
+      max-width: 640px;
+      background-color: var(--bg-card);
+      border-radius: 14px;
+      padding: 28px;
+      border: 1px solid var(--border-soft);
+    }
+
+    .section-title {
+      font-size: 1.35rem;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .codeblock {
+      background-color: #000;
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 14px;
+      margin: 16px 0;
+      font-size: 0.95rem;
+      word-break: break-all;
+    }
+
+    .button {
+      background-color: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .button:hover {
+      background-color: var(--accent-dim);
+    }
+
+    .button:active {
+      transform: scale(0.96);
+    }
+
+    .input-number,
+    .input-text {
+      background-color: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .input-number {
+      width: 70px;
+    }
+
+    .input-text {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    #historyBox,
+    #managerBox {
+      margin-top: 14px;
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.9rem;
+      background-color: rgba(0,0,0,0.4);
+      word-break: break-all;
+    }
+
+    .blurred {
+      filter: blur(7px);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .manager-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    footer {
+      margin-top: 70px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      user-select: none;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>Password Tools</header>
+
+<!-- Password Generator -->
+<div class="section">
+  <div class="section-title">Password Generator</div>
+
+  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <button class="button" onclick="copyPassword()">Copy</button>
+    <input id="lengthInput" class="input-number" type="number" min="12" max="50" value="14" />
+    <button class="button" onclick="generatePassword()">Generate</button>
+  </div>
+
+  <div id="passwordDisplay" class="codeblock">No password generated.</div>
+</div>
+
+<!-- Password History -->
+<div class="section">
+  <div class="section-title">
+    <span>Password History</span>
+    <div style="display:flex; gap:8px;">
+      <button class="button" onclick="clearPasswords()">Clear</button>
+      <button class="button" onclick="downloadPasswords()">Download</button>
+    </div>
+  </div>
+
+  <div id="blurPrompt">
+    <p>Reveal generated passwords?</p>
+    <button class="button" onclick="showHistory()">Reveal</button>
+  </div>
+
+  <div id="historyBox" class="blurred"></div>
+</div>
+
+<!-- Password Manager -->
+<div class="section">
+  <div class="section-title">Password Manager</div>
+
+  <input
+    id="customPasswordInput"
+    class="input-text"
+    type="text"
+    placeholder="Enter password to save"
+  />
+
+  <div class="manager-actions">
+    <button class="button" onclick="saveCustomPassword()">Save</button>
+    <button class="button" onclick="downloadCustomPasswords()">Download</button>
+  </div>
+
+  <div id="managerBox"></div>
+</div>
+
+<footer>
+  <div>Password Tools © UK Law</div>
+  <div>A MicroCore Project</div>
+  <div style="margin-top:8px;">
+    <a href="/policies">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+  const passwordDisplay = document.getElementById('passwordDisplay');
+  const historyBox = document.getElementById('historyBox');
+  const blurPrompt = document.getElementById('blurPrompt');
+  const lengthInput = document.getElementById('lengthInput');
+  const customInput = document.getElementById('customPasswordInput');
+  const managerBox = document.getElementById('managerBox');
+
+  let passwordHistory = JSON.parse(localStorage.getItem('passwordHistory')) || [];
+  let customPasswords = JSON.parse(localStorage.getItem('customPasswords')) || [];
+
+  passwordHistory.forEach(p => addHistory(p));
+  renderCustomPasswords();
+
+  function generatePassword() {
+    const chars = '#!"%@ABCDEFHJ$=-/¬()*&';
+    let length = Math.min(50, Math.max(12, parseInt(lengthInput.value) || 14));
+    lengthInput.value = length;
+
+    let pwd = '';
+    for (let i = 0; i < length; i++) {
+      pwd += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    passwordDisplay.textContent = pwd;
+    passwordHistory.push(pwd);
+    localStorage.setItem('passwordHistory', JSON.stringify(passwordHistory));
+    addHistory(pwd);
+  }
+
+  function addHistory(pwd) {
+    const div = document.createElement('div');
+    div.textContent = pwd;
+    historyBox.appendChild(div);
+  }
+
+  function copyPassword() {
+    if (passwordDisplay.textContent !== 'No password generated.') {
+      navigator.clipboard.writeText(passwordDisplay.textContent);
+      alert('Copied to clipboard');
+    }
+  }
+
+  function showHistory() {
+    historyBox.classList.remove('blurred');
+    blurPrompt.classList.add('hidden');
+  }
+
+  function clearPasswords() {
+    passwordHistory = [];
+    localStorage.removeItem('passwordHistory');
+    historyBox.innerHTML = '';
+  }
+
+  function saveCustomPassword() {
+    const pwd = customInput.value.trim();
+    if (!pwd) return;
+
+    customPasswords.push(pwd);
+    localStorage.setItem('customPasswords', JSON.stringify(customPasswords));
+    customInput.value = '';
+    renderCustomPasswords();
+  }
+
+  function renderCustomPasswords() {
+    managerBox.innerHTML = '';
+    customPasswords.forEach((pwd, i) => {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.justifyContent = 'space-between';
+      row.style.marginBottom = '6px';
+
+      const span = document.createElement('span');
+      span.textContent = pwd;
+
+      const del = document.createElement('button');
+      del.textContent = '✕';
+      del.className = 'button';
+      del.style.padding = '2px 10px';
+
+      del.onclick = () => {
+        customPasswords.splice(i, 1);
+        localStorage.setItem('customPasswords', JSON.stringify(customPasswords));
+        renderCustomPasswords();
+      };
+
+      row.append(span, del);
+      managerBox.appendChild(row);
+    });
+  }
+
+  function downloadPasswords() {
+    if (!passwordHistory.length) return alert('No passwords to download');
+    downloadJSON(passwordHistory, 'GeneratedPasswords.json');
+  }
+
+  function downloadCustomPasswords() {
+    if (!customPasswords.length) return alert('No saved passwords');
+    downloadJSON(customPasswords, 'SavedPasswords.json');
+  }
+
+  function downloadJSON(data, name) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+  }
+
+  customInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveCustomPassword();
+  });
+</script>
+
+</body>
+</html>
