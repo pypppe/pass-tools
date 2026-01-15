@@ -20,9 +20,7 @@
       --text-muted: #a0a0a0;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -40,7 +38,6 @@
       font-size: 2.1rem;
       font-weight: 600;
       color: var(--accent);
-      letter-spacing: 0.5px;
       text-shadow: 0 0 6px rgba(0,170,255,0.6);
     }
 
@@ -61,16 +58,14 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      flex-wrap: wrap;
     }
 
     .codeblock {
-      background-color: #000;
+      background: #000;
       border: 1px solid var(--border-soft);
       border-radius: 10px;
       padding: 14px;
       margin: 16px 0;
-      font-size: 0.95rem;
       word-break: break-all;
     }
 
@@ -81,108 +76,59 @@
       border-radius: 8px;
       padding: 9px 18px;
       font-family: inherit;
-      font-size: 0.95rem;
       cursor: pointer;
-      transition: background-color 0.2s ease, transform 0.1s ease;
     }
 
-    .button:hover {
-      background-color: var(--accent-dim);
-    }
+    .button:hover { background-color: var(--accent-dim); }
 
-    .button:active {
-      transform: scale(0.96);
-    }
-
-    .input-number,
-    .input-text {
-      background-color: var(--bg-input);
+    .input-number, .input-text {
+      background: var(--bg-input);
       color: var(--text-main);
       border: 1px solid var(--border-soft);
       border-radius: 8px;
       padding: 7px 10px;
       font-family: inherit;
-      font-size: 0.95rem;
     }
 
-    .input-number {
-      width: 70px;
-    }
+    .input-number { width: 70px; }
+    .input-text { width: 100%; margin-top: 12px; }
 
-    .input-text {
-      width: 100%;
-      margin-top: 12px;
-    }
-
-    #historyBox,
-    #managerBox {
+    #historyBox, #managerBox {
       margin-top: 14px;
       border: 1px solid var(--border-soft);
       border-radius: 10px;
       padding: 14px;
-      font-size: 0.9rem;
-      background-color: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.4);
       word-break: break-all;
     }
 
     .blurred {
       filter: blur(7px);
       pointer-events: none;
-      user-select: none;
     }
 
-    .hidden {
-      display: none;
-    }
-
-    .manager-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
+    .hidden { display: none; }
 
     footer {
       margin-top: 70px;
       text-align: center;
       color: var(--text-muted);
       font-size: 0.85rem;
-      user-select: none;
     }
-
-    footer a {
-      color: var(--accent);
-      text-decoration: underline;
-    }
-
-    .header-link {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.header-link:hover {
-  text-decoration: underline;
-}
-
   </style>
 </head>
 
 <body>
 
-<header>
-  <a href="https://ptools.astrarune.com/about" class="header-link">
-    Password Tools v2.0
-  </a>
-</header>
-
+<header>Password Tools v2.0</header>
 
 <!-- Password Generator -->
 <div class="section">
   <div class="section-title">Password Generator</div>
 
-  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+  <div style="display:flex; gap:10px;">
     <button class="button" onclick="copyPassword()">Copy</button>
-    <input id="lengthInput" class="input-number" type="number" min="12" max="50" value="14" />
+    <input id="lengthInput" class="input-number" type="number" min="12" max="50" value="14">
     <button class="button" onclick="generatePassword()">Generate</button>
   </div>
 
@@ -211,14 +157,9 @@
 <div class="section">
   <div class="section-title">Password Manager</div>
 
-  <input
-    id="customPasswordInput"
-    class="input-text"
-    type="text"
-    placeholder="Enter password to save"
-  />
+  <input id="customPasswordInput" class="input-text" placeholder="Enter password to save">
 
-  <div class="manager-actions">
+  <div style="margin-top:10px; display:flex; gap:10px;">
     <button class="button" onclick="saveCustomPassword()">Save</button>
     <button class="button" onclick="downloadCustomPasswords()">Download</button>
   </div>
@@ -226,13 +167,33 @@
   <div id="managerBox"></div>
 </div>
 
-<footer>
-  <div>Password Tools v2.0 is Open-Source</div>
-  <div>Originally by Stormy45.</div>
-  <div style="margin-top:8px;">
-    <a href="/policies">Privacy Policy</a>
+<!-- DOWNLOAD MODAL -->
+<div id="downloadModal" class="hidden"
+     style="position:fixed; inset:0; background:rgba(0,0,0,0.75);
+            display:flex; align-items:center; justify-content:center; z-index:999;">
+  <div class="section" style="max-width:420px; margin-top:0;">
+    <div class="section-title" style="justify-content:center;">
+      Download Options
+    </div>
+
+    <div style="display:flex; gap:12px; justify-content:center;">
+      <button class="button" onclick="confirmDownload('txt')">.TXT file</button>
+      <button class="button" onclick="confirmDownload('json')">.JSON file</button>
+    </div>
+
+    <div style="margin-top:18px; font-size:0.85rem; color:var(--text-muted);">
+      <strong>Instructions:</strong><br><br>
+      Click one of the options above. If you see a pop-up saying
+      “Choose an app to open this file” or similar, select <strong>Notepad</strong>.
+    </div>
+
+    <div style="margin-top:16px; text-align:center;">
+      <button class="button" onclick="closeDownloadModal()">Cancel</button>
+    </div>
   </div>
-</footer>
+</div>
+
+<footer>Open-Source · Originally by Stormy45</footer>
 
 <script>
   const passwordDisplay = document.getElementById('passwordDisplay');
@@ -244,20 +205,18 @@
 
   let passwordHistory = JSON.parse(localStorage.getItem('passwordHistory')) || [];
   let customPasswords = JSON.parse(localStorage.getItem('customPasswords')) || [];
+  let pendingDownload = null;
 
   passwordHistory.forEach(p => addHistory(p));
   renderCustomPasswords();
 
   function generatePassword() {
     const chars = '#!"%@ABCDEFHJ$=-/¬()*&';
-    let length = Math.min(50, Math.max(12, parseInt(lengthInput.value) || 14));
-    lengthInput.value = length;
-
+    let length = Math.min(50, Math.max(12, lengthInput.value));
     let pwd = '';
     for (let i = 0; i < length; i++) {
       pwd += chars[Math.floor(Math.random() * chars.length)];
     }
-
     passwordDisplay.textContent = pwd;
     passwordHistory.push(pwd);
     localStorage.setItem('passwordHistory', JSON.stringify(passwordHistory));
@@ -291,7 +250,6 @@
   function saveCustomPassword() {
     const pwd = customInput.value.trim();
     if (!pwd) return;
-
     customPasswords.push(pwd);
     localStorage.setItem('customPasswords', JSON.stringify(customPasswords));
     customInput.value = '';
@@ -304,48 +262,54 @@
       const row = document.createElement('div');
       row.style.display = 'flex';
       row.style.justifyContent = 'space-between';
-      row.style.marginBottom = '6px';
-
       const span = document.createElement('span');
       span.textContent = pwd;
-
       const del = document.createElement('button');
       del.textContent = '✕';
       del.className = 'button';
-      del.style.padding = '2px 10px';
-
       del.onclick = () => {
         customPasswords.splice(i, 1);
         localStorage.setItem('customPasswords', JSON.stringify(customPasswords));
         renderCustomPasswords();
       };
-
       row.append(span, del);
       managerBox.appendChild(row);
     });
   }
 
   function downloadPasswords() {
-    if (!passwordHistory.length) return alert('No passwords to download');
-    downloadJSON(passwordHistory, 'GeneratedPasswords.json');
+    if (!passwordHistory.length) return alert('No passwords');
+    pendingDownload = { data: passwordHistory, name: 'GeneratedPasswords' };
+    openDownloadModal();
   }
 
   function downloadCustomPasswords() {
     if (!customPasswords.length) return alert('No saved passwords');
-    downloadJSON(customPasswords, 'SavedPasswords.json');
+    pendingDownload = { data: customPasswords, name: 'SavedPasswords' };
+    openDownloadModal();
   }
 
-  function downloadJSON(data, name) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
+  function openDownloadModal() {
+    document.getElementById('downloadModal').classList.remove('hidden');
+  }
+
+  function closeDownloadModal() {
+    document.getElementById('downloadModal').classList.add('hidden');
+    pendingDownload = null;
+  }
+
+  function confirmDownload(type) {
+    if (!pendingDownload) return;
+    let content = type === 'txt'
+      ? pendingDownload.data.join('\n')
+      : JSON.stringify(pendingDownload.data, null, 2);
+    let blob = new Blob([content], { type: 'text/plain' });
+    let a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = name;
+    a.download = `${pendingDownload.name}.${type}`;
     a.click();
+    closeDownloadModal();
   }
-
-  customInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') saveCustomPassword();
-  });
 </script>
 
 </body>
