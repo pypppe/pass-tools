@@ -25,7 +25,7 @@
     body {
       margin: 0;
       padding-bottom: 60px;
-      background-color: var(--bg-main);
+      background: var(--bg-main);
       color: var(--text-main);
       font-family: 'Fira Code', monospace;
       display: flex;
@@ -45,7 +45,7 @@
       margin-top: 56px;
       width: 90%;
       max-width: 640px;
-      background-color: var(--bg-card);
+      background: var(--bg-card);
       border-radius: 14px;
       padding: 28px;
       border: 1px solid var(--border-soft);
@@ -70,7 +70,7 @@
     }
 
     .button {
-      background-color: var(--accent);
+      background: var(--accent);
       color: #000;
       border: none;
       border-radius: 8px;
@@ -79,7 +79,7 @@
       cursor: pointer;
     }
 
-    .button:hover { background-color: var(--accent-dim); }
+    .button:hover { background: var(--accent-dim); }
 
     .input-number, .input-text {
       background: var(--bg-input);
@@ -107,11 +107,23 @@
       pointer-events: none;
     }
 
-    .hidden { display: none; }
+    /* MODAL */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal.active {
+      display: flex;
+    }
 
     footer {
       margin-top: 70px;
-      text-align: center;
       color: var(--text-muted);
       font-size: 0.85rem;
     }
@@ -122,20 +134,18 @@
 
 <header>Password Tools v2.0</header>
 
-<!-- Password Generator -->
+<!-- Generator -->
 <div class="section">
   <div class="section-title">Password Generator</div>
-
   <div style="display:flex; gap:10px;">
     <button class="button" onclick="copyPassword()">Copy</button>
     <input id="lengthInput" class="input-number" type="number" min="12" max="50" value="14">
     <button class="button" onclick="generatePassword()">Generate</button>
   </div>
-
   <div id="passwordDisplay" class="codeblock">No password generated.</div>
 </div>
 
-<!-- Password History -->
+<!-- History -->
 <div class="section">
   <div class="section-title">
     <span>Password History</span>
@@ -153,28 +163,21 @@
   <div id="historyBox" class="blurred"></div>
 </div>
 
-<!-- Password Manager -->
+<!-- Manager -->
 <div class="section">
   <div class="section-title">Password Manager</div>
-
   <input id="customPasswordInput" class="input-text" placeholder="Enter password to save">
-
   <div style="margin-top:10px; display:flex; gap:10px;">
     <button class="button" onclick="saveCustomPassword()">Save</button>
     <button class="button" onclick="downloadCustomPasswords()">Download</button>
   </div>
-
   <div id="managerBox"></div>
 </div>
 
 <!-- DOWNLOAD MODAL -->
-<div id="downloadModal" class="hidden"
-     style="position:fixed; inset:0; background:rgba(0,0,0,0.75);
-            display:flex; align-items:center; justify-content:center; z-index:999;">
+<div id="downloadModal" class="modal">
   <div class="section" style="max-width:420px; margin-top:0;">
-    <div class="section-title" style="justify-content:center;">
-      Download Options
-    </div>
+    <div class="section-title" style="justify-content:center;">Download Options</div>
 
     <div style="display:flex; gap:12px; justify-content:center;">
       <button class="button" onclick="confirmDownload('txt')">.TXT file</button>
@@ -183,8 +186,7 @@
 
     <div style="margin-top:18px; font-size:0.85rem; color:var(--text-muted);">
       <strong>Instructions:</strong><br><br>
-      Click one of the options above. If you see a pop-up saying
-      “Choose an app to open this file” or similar, select <strong>Notepad</strong>.
+      If prompted to choose an app, select <strong>Notepad</strong>.
     </div>
 
     <div style="margin-top:16px; text-align:center;">
@@ -202,17 +204,18 @@
   const lengthInput = document.getElementById('lengthInput');
   const customInput = document.getElementById('customPasswordInput');
   const managerBox = document.getElementById('managerBox');
+  const modal = document.getElementById('downloadModal');
 
   let passwordHistory = JSON.parse(localStorage.getItem('passwordHistory')) || [];
   let customPasswords = JSON.parse(localStorage.getItem('customPasswords')) || [];
   let pendingDownload = null;
 
-  passwordHistory.forEach(p => addHistory(p));
+  passwordHistory.forEach(addHistory);
   renderCustomPasswords();
 
   function generatePassword() {
     const chars = '#!"%@ABCDEFHJ$=-/¬()*&';
-    let length = Math.min(50, Math.max(12, lengthInput.value));
+    const length = Math.min(50, Math.max(12, lengthInput.value || 14));
     let pwd = '';
     for (let i = 0; i < length; i++) {
       pwd += chars[Math.floor(Math.random() * chars.length)];
@@ -238,7 +241,7 @@
 
   function showHistory() {
     historyBox.classList.remove('blurred');
-    blurPrompt.classList.add('hidden');
+    blurPrompt.style.display = 'none';
   }
 
   function clearPasswords() {
@@ -278,33 +281,30 @@
   }
 
   function downloadPasswords() {
-    if (!passwordHistory.length) return alert('No passwords');
+    if (!passwordHistory.length) return alert('No passwords to download');
     pendingDownload = { data: passwordHistory, name: 'GeneratedPasswords' };
-    openDownloadModal();
+    modal.classList.add('active');
   }
 
   function downloadCustomPasswords() {
     if (!customPasswords.length) return alert('No saved passwords');
     pendingDownload = { data: customPasswords, name: 'SavedPasswords' };
-    openDownloadModal();
-  }
-
-  function openDownloadModal() {
-    document.getElementById('downloadModal').classList.remove('hidden');
+    modal.classList.add('active');
   }
 
   function closeDownloadModal() {
-    document.getElementById('downloadModal').classList.add('hidden');
+    modal.classList.remove('active');
     pendingDownload = null;
   }
 
   function confirmDownload(type) {
     if (!pendingDownload) return;
-    let content = type === 'txt'
+    const content = type === 'txt'
       ? pendingDownload.data.join('\n')
       : JSON.stringify(pendingDownload.data, null, 2);
-    let blob = new Blob([content], { type: 'text/plain' });
-    let a = document.createElement('a');
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `${pendingDownload.name}.${type}`;
     a.click();
