@@ -1,4 +1,3 @@
-<script>
 (function () {
     const faviconUrl = "https://ptools.astrarune.com/favicon.ico";
 
@@ -20,4 +19,3 @@
     const observer = new MutationObserver(setFavicon);
     observer.observe(document.head, { childList: true });
 })();
-</script>
