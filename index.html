@@ -127,6 +127,28 @@
       color: var(--text-muted);
       font-size: 0.85rem;
     }
+
+#customContextMenu {
+    position: absolute;
+    background-color: #151515;
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    display: none;
+    z-index: 9999;
+}
+
+#customContextMenu div {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: 'Fira Code', monospace;
+}
+
+#customContextMenu div:hover {
+    background-color: #333333;
+}
+
   </style>
 </head>
 
@@ -317,6 +339,31 @@
     a.click();
     closeDownloadModal();
   }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const customMenu = document.createElement('div');
+    customMenu.id = 'customContextMenu';
+    customMenu.innerHTML = `
+        <div>Password Tools v2.0, by Astrarune</div>
+    `;
+    document.body.appendChild(customMenu);
+
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault(); 
+        showCustomMenu(e.clientX, e.clientY);
+    });
+
+    function showCustomMenu(x, y) {
+        customMenu.style.left = `${x}px`;
+        customMenu.style.top = `${y}px`;
+        customMenu.style.display = 'block';
+    }
+
+    document.addEventListener('click', function () {
+        customMenu.style.display = 'none';
+    });
+});
+
 </script>
 
 </body>
