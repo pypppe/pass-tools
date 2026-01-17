@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page not Found</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: #0b0b0b;
+            color: white;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-top: 50px;
+        }
+
+        .message {
+            font-size: 1.5em;
+            max-width: 800px;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+
+        .url {
+            color: #ff4b5c;
+            font-weight: bold;
+        }
+
+        .content {
+            position: relative;
+            top: 20%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="content">
+    <h1>Page wasn't found.</h1>
+    <div class="message">
+        Sorry, our database couldn't find this page. Maybe you misspelled a URL or the page you are looking for has been moved to a new path. Either way, this page <span class="url" id="urlName"></span> was not found.
+    </div>
+</div>
+
+<script>
+    const currentUrl = window.location.pathname;
+    document.getElementById('urlName').textContent = currentUrl;
+</script>
+
+</body>
+</html>
